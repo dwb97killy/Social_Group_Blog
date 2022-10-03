@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block profile_block %}
+
+    <div class="container">
+        <div class="jumbotron">
+            {% if user.is_authenticated %}
+                <h1>Welcome home, {{ user.username }}</h1>
+            {% else %}
+                <h1>There may be some mistakes!</h1>
+            {% endif %}
+        </div>
+    </div>
+    {% if user.is_authenticated %}
+	<div class="card card-with-shadow">
+		<div class="content">
+			<h5 class="title">Groups you created</h5>
+			<ul class="list-unstyled">
+				{% for group in create_groups %}
+				    <li class="group li-with-bullet">
+					    <a href="{% url 'group:group_detail' slug=group.slug %}">{{ group.name }}</a>
+				    </li>
+				{% endfor %}
+
+			</ul>
+		</div>
+	</div>
+    <div class="card card-with-shadow">
+		<div class="content">
+			<h5 class="title">Groups you joined</h5>
+			<ul class="list-unstyled">
+				{% for member_group in joined_groups %}
+				    <li class="group li-with-bullet">
+					    <a href="{% url 'group:group_detail' slug=member_group.group.slug %}">{{ member_group.group.name }}</a>
+				    </li>
+				{% endfor %}
+
+			</ul>
+		</div>
+	</div>
+	{% endif %}
+    <h1>Published Blogs</h1>
+    {% for blog in published_blogs %}
+    <div class="card m-3 ">
+        <div class="card-body bg-warning" style="--bs-bg-opacity: .5;">
+            <h2 class="card-body">{{blog.title}}</h2>
+            <p class="card-text">{{blog.content | slice:"200"}}</p>
+            <p class="card-text">Author: {{blog.publisher | title}}</p>
+            <p class="card-text">Post Time: {{blog.publish_time}}</p>
+            <p class="card-text">Last Modified Time: {{blog.modify_time}}</p>
+            <p class="card-text">Create Time: {{blog.create_time}}</p>
+            <a class="btn btn-primary" href="{% url 'blog:blog_detail' username=user.username pk=blog.pk %}">Read More</a>
+            <hr>
+        </div>
+    </div>
+    {% endfor %}
+    <hr>
+    <h1>Draft Blogs</h1>
+    {% for blog in created_blogs %}
+    <div class="card m-3 ">
+        <div class="card-body bg-warning" style="--bs-bg-opacity: .5;">
+            <h2 class="card-body">{{blog.title}}</h2>
+            <p class="card-text">{{blog.content | slice:"200"}}</p>
+            <p class="card-text">Author: {{blog.publisher | title}}</p>
+            <p class="card-text">Last Modified Time: {{blog.modify_time}}</p>
+            <p class="card-text">Create Time: {{blog.create_time}}</p>
+            <a class="btn btn-primary" href="{% url 'blog:blog_detail' username=user.username pk=blog.pk %}">Read More</a>
+            <hr>
+        </div>
+    </div>
+    {% endfor %}
+
+{% endblock %}

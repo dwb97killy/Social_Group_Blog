@@ -1,0 +1,68 @@
+{% extends "blog/base.html" %}
+
+{% block blog_content %}
+
+    {% if blog.publish_time %}
+        <h1 class='posttitle loader'>{{ blog.title }}</h1>
+        <div class="date postdate">
+            <p>The blog was published at: {{ blog.publish_time }}</p>
+        </div>
+        <p class='postcontent' >{{ blog.content|safe|linebreaksbr }}</p>
+        <div class="date postdate">
+            <time class="time">Posted at: {{ blog.publish_time }}</time>
+            {% if blog.group %}
+                <span class="group-name">in <a href="{% url 'group:group_detail' slug=blog.group.slug %}">{{ blog.group.name }}</a></span>
+            {% endif %}
+        </div>
+        {% if user.is_authenticated and blog.publisher.pk == user.pk %}
+            <a class="btn btn-primary" href="{% url 'blog:update_blog' username=user.username pk=blog.pk %}"><span class="fa fa-pencil">Edit</span></a>
+            <a class="btn btn-primary" href="{% url 'blog:delete_blog' username=user.username pk=blog.pk %}"><span class="fa fa-remove">Delete</span></a>
+            {% if blog.approve_comments %}
+                <a class="btn btn-primary" href="{% url 'blog:notapprove_comment' username=user.username pk=blog.pk %}"><span class="fa fa-remove">Forbid Comments</span></a>
+            {% else %}
+                <a class="btn btn-primary" href="{% url 'blog:approve_comment' username=user.username pk=blog.pk %}"><span class="fa fa-remove">Approve Comments</span></a>
+            {% endif %}
+        {% endif %}
+        <hr>
+        {% if blog.approve_comments %}
+            <a class="btn btn-primary btn-comment" href="{% url 'blog:add_comment' username=user.username pk=blog.pk %}">Add Comment</a>
+            <div class="container">
+                {% for comment in blog.comments.all %}
+                    <br>
+                    {% if user.is_authenticated or blog.approve_comments %}
+                        {% if user.is_authenticated and user.pk == comment.publisher.pk %}
+                            <a class="btn btn-primary" href="{% url 'blog:delete_comment' username=user.username pk=comment.pk %}"><span class="fa fa-remove">Delete Comment</span></a>
+                        {% endif %}
+                        <p>{{ comment.content|safe|linebreaks }}</p>
+                        <p>Posted by: <strong>{{ comment.publisher }}</strong></p>
+                    {% endif %}
+                    {% empty %}
+                    <p>No comments here.</p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Comments are forbidden now</p>
+        {% endif %}
+    {% else %}
+        {% if user.is_authenticated and blog.publisher.pk == user.pk %}
+            <h1 class='posttitle loader'>{{ blog.title }}</h1>
+            <div class="date postdate">
+                <time class="time">Created at: {{ blog.create_time }}</time>
+                {% if blog.group %}
+                    <span class="group-name">in <a href="{% url 'group:group_detail' slug=blog.group.slug %}">{{ blog.group.name }}</a></span>
+                {% endif %}
+            </div>
+            <p class='postcontent' >{{ blog.content|safe|linebreaksbr }}</p>
+            <a class="btn btn-primary" href="{% url 'blog:update_blog' username=user.username pk=blog.pk %}"><span class="fa fa-pencil">Edit</span></a>
+            <a class="btn btn-primary" href="{% url 'blog:delete_blog' username=user.username pk=blog.pk %}"><span class="fa fa-remove">Delete</span></a>
+            {% if not blog.publish_time %}
+                <a class="btn btn-primary" href="{% url 'blog:publish_blog' username=user.username pk=blog.pk %}"><span class="fa fa-pencil">Publish</span></a>
+            {% endif %}
+            <hr>
+        {% else %}
+            <p>Page does not exist!</p>
+            <a class="btn btn-outline-dark" href="{% url 'home_page' %}">Home Page</a>
+        {% endif %}
+    {% endif %}
+
+{% endblock %}

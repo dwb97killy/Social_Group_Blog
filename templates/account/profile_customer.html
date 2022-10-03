@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block profile_block %}
+
+    <div class="container">
+        <div class="jumbotron">
+            <h1>Hello, you are now a visitor to {{ blog_user.username }}</h1>
+        </div>
+    </div>
+    <h3>Published Blogs</h3>
+    {% for blog in published_blogs %}
+    <div class="card m-3 ">
+        <div class="card-body bg-warning" style="--bs-bg-opacity: .5;">
+            <h2 class="card-body">{{blog.title}}</h2>
+            <p class="card-text">{{blog.content | slice:"200"}}</p>
+            <p class="card-text">Author: {{blog.publisher | title}}</p>
+            <p class="card-text">Post Time: {{blog.publish_time}}</p>
+            <p class="card-text">Last Modified Time: {{blog.modify_time}}</p>
+            <p class="card-text">Create Time: {{blog.create_time}}</p>
+            <a class="btn btn-primary" href="{% url 'blog:blog_detail' username=blog_user.username pk=blog.pk %}">Read More</a>
+            <hr>
+        </div>
+    </div>
+    {% endfor %}
+
+{% endblock %}

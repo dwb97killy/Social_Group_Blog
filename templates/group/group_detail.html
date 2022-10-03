@@ -1,0 +1,74 @@
+{% extends "group/base.html" %}
+
+{% block pregroup %}
+
+<div class="container">
+  <h1>{{groupinfo.name}}</h1>
+  <h2> Current Member Count: {{groupinfo.members.count}}</h2>
+  <div class="content">
+	{% if user.username != groupinfo.create_user.username %}
+  		{% if user in groupinfo.members.all %}
+  			<a href="{% url 'group:leave' slug=groupinfo.slug %}" class="btn btn-lg btn-warning"><span class="fa fa-times-circle-o"></span> Leave </a>
+  		{% else %}
+  			<a href="{% url 'group:join' slug=groupinfo.name %}" class="btn btn-lg btn-warning"><span class="fa fa-check-circle-o"></span> Join </a>
+  		{% endif %}
+	{% else %}
+	  	{% if user.is_authenticated %}
+	  		<a href="{% url 'group:delete' slug=groupinfo.slug %}" class="btn btn-lg btn-warning"><span class="fa fa-times-circle-o"></span> Delete Group </a>
+	  	{% endif %}
+	{% endif%}
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block group_content %}
+
+<div class="col-md-8">
+	{% if user.is_authenticated and user.pk == groupinfo.create_user.pk %}
+		<h3 class="mr-5"><p>Group was created by: <a href="{% url 'account:user_profile_login' pk=groupinfo.create_user.pk %}">@{{ groupinfo.create_user.username }}</a></p></h3>
+	{% else %}
+		<h3 class="mr-5"><p>Group was created by: <a href="{% url 'account:user_profile_customer' pk=groupinfo.create_user.pk %}">@{{ groupinfo.create_user.username }}</a></p></h3>
+	{% endif %}
+	<hr>
+	<h2>Group members:</h2>
+	{% if groupinfo.members.count == 0 %}
+		<h2> No members in this group yet! </h2>
+	{% else %}
+		{% for member in groupinfo.members.all %}
+			<div class="media">
+				{% if user.is_authenticated and user.pk == member.pk %}
+					<h3 class="mr-5"><a href="{% url 'account:user_profile_login' pk=member.pk %}">@{{ member.username }}</a>
+						{% for membership in groupinfo.memberships.all %}
+							{% if membership.member.pk == member.pk %}
+								<p>joined at {{membership.join_time}}</p>
+							{% endif %}
+						{% endfor %}
+					</h3>
+				{% else %}
+					<h3 class="mr-5"><a href="{% url 'account:user_profile_customer' pk=member.pk %}">@{{ member.username }}</a>
+						{% for membership in groupinfo.memberships.all %}
+							{% if membership.member.pk == member.pk %}
+								<p>joined at {{membership.join_time}}</p>
+							{% endif %}
+						{% endfor %}
+					</h3>
+				{% endif %}
+			</div>
+		{% endfor %}
+	{% endif %}
+	<hr>
+	<h2>Published blogs:</h2>
+	{% if groupinfo.blog_group.count == 0 %}
+		<h2> No blogs in this group yet! </h2>
+	{% else %}
+		{% for blog in groupinfo.blog_group.all %}
+			{% if blog.publish_time != None %}
+				{% include "blog/_blog.html" %}
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+</div>
+
+{% endblock %}
